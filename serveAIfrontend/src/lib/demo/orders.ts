@@ -1,0 +1,73 @@
+import type { Order } from "@/types";
+
+export const orders: Order[] = [
+  {
+    id: "ORD-2401",
+    room: "Room 502",
+    guest: "Aarav Mehta",
+    status: "Preparing",
+    total: 1026,
+    createdAt: "2026-05-29T14:20:00+05:30",
+    eta: "18 min",
+    paymentStatus: "Room Charge",
+    items: [
+      { id: "m-102", name: "Executive Thali", quantity: 2, price: 389 },
+      { id: "m-104", name: "Cold Coffee Float", quantity: 1, price: 179, notes: "Less sugar" },
+    ],
+  },
+  {
+    id: "ORD-2402",
+    room: "Table 08",
+    guest: "Walk-in Guest",
+    status: "Placed",
+    total: 858,
+    createdAt: "2026-05-29T14:32:00+05:30",
+    eta: "24 min",
+    paymentStatus: "Pending",
+    items: [
+      { id: "m-106", name: "Hyderabadi Biryani Bowl", quantity: 2, price: 429 },
+    ],
+  },
+  {
+    id: "ORD-2403",
+    room: "Room 208",
+    guest: "Nisha Shah",
+    status: "Ready",
+    total: 448,
+    createdAt: "2026-05-29T13:52:00+05:30",
+    eta: "Pickup now",
+    paymentStatus: "Paid",
+    items: [
+      { id: "m-101", name: "Paneer Tikka Wrap", quantity: 1, price: 249 },
+      { id: "m-103", name: "Masala Omelette Toast", quantity: 1, price: 199 },
+    ],
+  },
+  {
+    id: "ORD-2404",
+    room: "Pool Deck",
+    guest: "Kabir Rao",
+    status: "Out For Delivery",
+    total: 577,
+    createdAt: "2026-05-29T13:28:00+05:30",
+    eta: "6 min",
+    paymentStatus: "Paid",
+    items: [
+      { id: "m-104", name: "Cold Coffee Float", quantity: 2, price: 179 },
+      { id: "m-105", name: "Chocolate Lava Cake", quantity: 1, price: 219 },
+    ],
+  },
+  {
+    id: "ORD-2405",
+    room: "Room 701",
+    guest: "Priya Menon",
+    status: "Delivered",
+    total: 638,
+    createdAt: "2026-05-29T12:48:00+05:30",
+    eta: "Delivered",
+    paymentStatus: "Room Charge",
+    items: [
+      { id: "m-102", name: "Executive Thali", quantity: 1, price: 389 },
+      { id: "m-101", name: "Paneer Tikka Wrap", quantity: 1, price: 249 },
+    ],
+  },
+];

@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f8f3;
+  --foreground: #111827;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-lime-50: #f7ffe8;
+  --color-lime-100: #ecffc7;
+  --color-lime-300: #bdf65e;
+  --color-lime-400: #a7e92f;
+  --color-lime-500: #87cf16;
+  --color-lime-700: #4f8508;
+  --color-charcoal-50: #f6f7f8;
+  --color-charcoal-100: #e8ecef;
+  --color-charcoal-200: #d7dde2;
+  --color-charcoal-400: #8b96a3;
+  --color-charcoal-500: #66717f;
+  --color-charcoal-600: #4a5563;
+  --color-charcoal-700: #344052;
+  --color-charcoal-800: #202a3a;
+  --color-charcoal-950: #0d1726;
+  --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.08);
+  --shadow-strong: 0 24px 70px rgba(15, 23, 42, 0.22);
+  --font-sans: var(--font-montserrat);
+  --font-mono: var(--font-jetbrains-mono);
+  --font-serif: Georgia, "Times New Roman", Times, serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-montserrat), Arial, Helvetica, sans-serif;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
