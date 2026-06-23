@@ -35,7 +35,7 @@ export default function CategoriesPage() {
           <div key={category.id} className="grid gap-3">
             <MenuCard category={category} />
             <div className="flex gap-3">
-              <input aria-label={`${category.name} name`} defaultValue={category.name} className="min-w-0 flex-1 rounded-2xl border border-charcoal-100 px-4 font-bold" />
+              <input aria-label={`${category.name} name`} defaultValue={category.name} className="min-w-0 flex-1 rounded-2xl border border-charcoal-400 px-4 font-bold" />
               <ConfirmDialog label={category.name} onConfirm={() => setCategories((prev) => prev.filter((item) => item.id !== category.id))} />
             </div>
           </div>

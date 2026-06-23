@@ -1,12 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import { Button, OrderCard, PageHeader, RoleTopbar, StatusBadge } from "@/components/app-components";
+import {
+  Button,
+  OrderCard,
+  PageHeader,
+  RoleTopbar,
+  StatusBadge,
+} from "@/components/app-components";
 import { orders as demoOrders } from "@/lib/demo/orders";
 import type { OrderStatus } from "@/types";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
-const columns: { title: string; statuses: OrderStatus[]; next?: OrderStatus }[] = [
+const columns: {
+  title: string;
+  statuses: OrderStatus[];
+  next?: OrderStatus;
+}[] = [
   { title: "New Orders", statuses: ["Placed", "Accepted"], next: "Preparing" },
   { title: "Preparing", statuses: ["Preparing"], next: "Ready" },
   { title: "Ready", statuses: ["Ready"], next: "Out For Delivery" },
@@ -16,33 +28,158 @@ const columns: { title: string; statuses: OrderStatus[]; next?: OrderStatus }[] 
 export default function KitchenPage() {
   const [orders, setOrders] = useState(demoOrders);
 
-  function moveOrder(id: string, status: OrderStatus) {
-    setOrders((prev) => prev.map((order) => (order.id === id ? { ...order, status } : order)));
-    toast.success(`Order moved to ${status}`);
-  }
+  // function moveOrder(id: string, status: OrderStatus) {
+  //   setOrders((prev) =>
+  //     prev.map((order) => (order.id === id ? { ...order, status } : order)),
+  //   );
+  //   toast.success(`Order moved to ${status}`);
+  // }
+
+    // Track selected order IDs globally at the parent level
+    const[selectedOrderIds,setSelectedOrderIds] = useState<string[]>([]);
+
+      // Individual toggle function passed down to OrderCard
+
+      function toggleOrderSelection(id:string) {
+        setSelectedOrderIds((prev) => 
+          prev.includes(id) ? prev.filter((item) => item !== id) : [...prev,id]
+        )
+      }
+
+        // Handle Select All click logic for a specific column
+      function handleSelectAllToggle(columnStatuses:OrderStatus[], currentOrdersInColumn: typeof demoOrders){
+        const columnOrderIds = currentOrdersInColumn.map((o)=>o.id);
+        const areAllSelected = columnOrderIds.every((id) => selectedOrderIds.includes(id));
+
+
+        if(areAllSelected){
+          //uncheck all column
+          setSelectedOrderIds((prev) => prev.filter((id) => !columnOrderIds.includes(id)))
+        }else{
+          //check all
+          setSelectedOrderIds((prev) => {
+            const uniqueIds = new Set([...prev, ...columnOrderIds]);
+            return Array.from(uniqueIds);
+          });
+        }
+
+
+      }
+
+
+        // Bulk move for the single column button
+      function handleColumnMove(columnStatuses: OrderStatus[], nextStatus: OrderStatus) {
+        const currentOrdersInColumn = orders.filter((order) => columnStatuses.includes(order.status));
+        const orderIdsInColumn = currentOrdersInColumn.map((o) => o.id);
+        
+        // Determine target items: chosen individuals, or fallback to moving everything in this column
+        const selectedInColumn = orderIdsInColumn.filter((id) => selectedOrderIds.includes(id));
+        const idsToMove = selectedInColumn.length > 0 ? selectedInColumn : orderIdsInColumn;
+
+        if (idsToMove.length === 0) {
+          toast.error("No orders to move in this column.");
+          return;
+        }
+
+        setOrders((prev) =>
+          prev.map((order) =>
+            idsToMove.includes(order.id) ? { ...order, status: nextStatus } : order
+          )
+        );
+
+        // Clear moved selections from state
+        setSelectedOrderIds((prev) => prev.filter((id) => !idsToMove.includes(id)));
+        toast.success(`Moved ${idsToMove.length} order(s) to ${nextStatus}`);
+      }
+
 
   return (
     <main className="min-h-screen bg-charcoal-50">
       <RoleTopbar title="Kitchen Board" subtitle="Chef-only prep workspace" />
       <div className="mx-auto grid max-w-7xl gap-6 p-4 md:p-8">
-        <PageHeader title="Kitchen Display" description="Kanban-ready prep board with large, readable cards and one-tap movement." />
+        <PageHeader
+          title="Kitchen Display"
+          description="Kanban-ready prep board with large, readable cards and bulk movement workflows."
+        />
         <div className="grid gap-4 xl:grid-cols-4">
-          {columns.map((column) => (
-            <section key={column.title} className="rounded-3xl border border-charcoal-100 bg-white/70 p-4">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-black">{column.title}</h2>
-                <StatusBadge status={String(orders.filter((order) => column.statuses.includes(order.status)).length)} />
-              </div>
-              <div className="grid gap-4">
-                {orders.filter((order) => column.statuses.includes(order.status)).map((order) => (
-                  <div key={order.id} className="grid gap-3">
-                    <OrderCard order={order} />
-                    {column.next ? <Button variant="secondary" onClick={() => moveOrder(order.id, column.next!)}>Move to {column.next}</Button> : null}
+          {columns.map((column) => {
+            // Filter down orders matching this column's status scope
+            const ordersInColumn = orders.filter((order) =>
+              column.statuses.includes(order.status)
+            );
+
+            // Calculate if the column's select-all box should look checked
+            const columnOrderIds = ordersInColumn.map((o) => o.id);
+            const isSelectAllChecked =
+              columnOrderIds.length > 0 &&
+              columnOrderIds.every((id) => selectedOrderIds.includes(id));
+
+            // Determine if a selection exists in this column to dynamically rename the button
+            const directSelectionsCount = columnOrderIds.filter((id) => selectedOrderIds.includes(id)).length;
+
+            return (
+              <section
+                key={column.title}
+                className="flex flex-col rounded-3xl border border-charcoal-100 bg-white/70 p-4 min-h-[500px]"
+              >
+                {/* Column Title Header */}
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-lg font-black">{column.title}</h2>
+                  <StatusBadge status={String(ordersInColumn.length)} />
+                </div>
+
+                {/* Select All Action Bar */}
+                {ordersInColumn.length > 0 && (
+                  <FieldGroup className="mx-auto w-56 mb-4">
+                    <Field orientation="horizontal" className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox
+                        id={`selectAll-${column.title}`}
+                        checked={isSelectAllChecked}
+                        onCheckedChange={() => handleSelectAllToggle(column.statuses, ordersInColumn)}
+                        className="border-gray-600"
+                      />
+                      <FieldLabel htmlFor={`selectAll-${column.title}`} className="cursor-pointer font-medium select-none">
+                        Select All
+                      </FieldLabel>
+                    </Field>
+                  </FieldGroup>
+                )}
+
+                {/* Card Flow Container */}
+                <div className="grid gap-4 flex-1 overflow-y-auto align-top content-start">
+                  {ordersInColumn.map((order) => (
+                    <OrderCard
+                      key={order.id}
+                      order={order}
+                      isSelected={selectedOrderIds.includes(order.id)}
+                      onSelectToggle={() => toggleOrderSelection(order.id)}
+                    />
+                  ))}
+                  
+                  {ordersInColumn.length === 0 && (
+                    <div className="text-center py-8 text-sm text-charcoal-400 font-medium italic">
+                      No active orders
+                    </div>
+                  )}
+                </div>
+
+                {/* Single Footer Column Move Button */}
+                {column.next && ordersInColumn.length > 0 && (
+                  <div className="mt-4 pt-3 border-t border-charcoal-100/50">
+                    <Button
+                      className="w-full shadow-sm font-bold"
+                      // variant={directSelectionsCount > 0 ? "default" : "secondary"}
+                      onClick={() => handleColumnMove(column.statuses, column.next!)}
+                    >
+                      {directSelectionsCount > 0
+                        ? `Move Selected (${directSelectionsCount})`
+                        : "Move All Orders"}
+                    </Button>
                   </div>
-                ))}
-              </div>
-            </section>
-          ))}
+                )}
+              </section>
+            );
+          })}
         </div>
       </div>
     </main>

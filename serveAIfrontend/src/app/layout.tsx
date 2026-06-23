@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Montserrat } from "next/font/google";
+import { JetBrains_Mono, Montserrat, Geist } from "next/font/google";
 import { Toaster } from "sonner";
 import { AuthGate } from "@/components/auth-gate";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -28,7 +31,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${montserrat.variable} ${jetBrainsMono.variable} h-full antialiased`}
+      className={cn("h-full", "antialiased", montserrat.variable, jetBrainsMono.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full flex flex-col font-sans">
         <AuthGate>{children}</AuthGate>

@@ -39,6 +39,8 @@ import { formatCurrency } from "@/utils/formatCurrency";
 import { formatTime } from "@/utils/formatTime";
 import { generateInitials } from "@/utils/generateInitials";
 import { orderStatuses, statusTone } from "@/utils/orderStatus";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 export function Button({
   children,
@@ -49,7 +51,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-lime-300 disabled:cursor-not-allowed disabled:opacity-50",
+        "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-lime-300 disabled:cursor-not-allowed disabled:opacity-50 ",
         variant === "primary" && "bg-lime-400 text-charcoal-950 shadow-soft hover:bg-lime-300",
         variant === "secondary" && "bg-charcoal-950 text-white hover:bg-charcoal-800",
         variant === "ghost" && "bg-white text-charcoal-800 ring-1 ring-charcoal-100 hover:bg-charcoal-50",
@@ -228,18 +230,41 @@ export function InlineStatusSelect({ value, onChange }: { value: OrderStatus; on
   );
 }
 
-export function OrderCard({ order, editable = false }: { order: Order; editable?: boolean }) {
-  const [status, setStatus] = useState(order.status);
+interface OrderCardProps {
+  order: Order;
+  editable?: boolean;
+  isSelected: boolean;
+  onSelectToggle: () => void;
+}
 
+
+export function OrderCard({ order, editable = false, isSelected, onSelectToggle }: OrderCardProps) {
   return (
-    <article className="rounded-3xl border border-charcoal-100 bg-white p-4 shadow-soft">
+    <article className={`rounded-3xl border p-4 shadow-soft transition-all duration-200 ${
+      isSelected ? "border-primary bg-primary-50/20 ring-1 ring-primary/20" : "border-charcoal-100 bg-white"
+    }`}>
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="font-black text-charcoal-950">{order.id}</h3>
-          <p className="mt-1 text-sm text-charcoal-500">{order.room} · {order.guest}</p>
-        </div>
-        {editable ? <InlineStatusSelect value={status} onChange={setStatus} /> : <StatusBadge status={status} />}
+        <FieldGroup>
+          <Field orientation="horizontal" className="flex items-center">
+            <Checkbox
+              id={`checkbox-${order.id}`}
+              name={`checkbox-${order.id}`}
+              checked={isSelected}
+              onCheckedChange={onSelectToggle}
+              className="border-gray-600 data-[state=checked]:bg-primary"
+            />
+          </Field>
+        </FieldGroup>
+        
+        {/* Render read-only badge directly since page controls routing */}
+        <StatusBadge status={order.status} />
       </div>
+
+      <div className="mt-2">
+        <h3 className="font-black text-charcoal-950">{order.id}</h3>
+        <p className="mt-1 text-sm text-charcoal-500">{order.room} · {order.guest}</p>
+      </div>
+
       <div className="mt-4 space-y-2">
         {order.items.map((item) => (
           <div key={`${order.id}-${item.id}`} className="flex justify-between gap-3 text-sm">
@@ -248,6 +273,7 @@ export function OrderCard({ order, editable = false }: { order: Order; editable?
           </div>
         ))}
       </div>
+
       <div className="mt-4 flex items-center justify-between border-t border-charcoal-100 pt-4">
         <span className="text-xs font-bold text-charcoal-400">{formatTime(order.createdAt)} · {order.eta}</span>
         <span className="text-lg font-black text-charcoal-950">{formatCurrency(order.total)}</span>
@@ -255,6 +281,50 @@ export function OrderCard({ order, editable = false }: { order: Order; editable?
     </article>
   );
 }
+
+// export function OrderCard({ order, editable = false }: { order: Order; editable?: boolean }) {
+//   const [status, setStatus] = useState(order.status);
+
+//   return (
+//     <article className="rounded-3xl border border-charcoal-100 bg-white p-4 shadow-soft">
+//       {/* <div className="flex items-start justify-between gap-3"> */}
+        
+//         <div className="flex items-start justify-between gap-3">
+//           <FieldGroup className="">
+//             <Field orientation="horizontal">
+//               <Checkbox
+//                 id="terms-checkbox-basic"
+//                 name="terms-checkbox-basic"
+//                 className="border-gray-600"
+//               />
+//             </Field>
+//           </FieldGroup>
+//         {editable ? <InlineStatusSelect value={status} onChange={setStatus} /> : <StatusBadge status={status} />}
+
+          
+//         </div>
+//         <div>
+//           <h3 className="font-black text-charcoal-950">{order.id}</h3>
+//           <p className="mt-1 text-sm text-charcoal-500">{order.room} · {order.guest}</p>
+//         </div>
+//       {/* </div> */}
+//       <div className="mt-4 space-y-2">
+//         {order.items.map((item) => (
+//           <div key={`${order.id}-${item.id}`} className="flex justify-between gap-3 text-sm">
+//             <span className="text-charcoal-600">{item.quantity}x {item.name}</span>
+//             <span className="font-bold">{formatCurrency(item.price * item.quantity)}</span>
+//           </div>
+//         ))}
+//       </div>
+//       <div className="mt-4 flex items-center justify-between border-t border-charcoal-100 pt-4">
+//         <span className="text-xs font-bold text-charcoal-400">{formatTime(order.createdAt)} · {order.eta}</span>
+//         <span className="text-lg font-black text-charcoal-950">{formatCurrency(order.total)}</span>
+//       </div>
+//     </article>
+//   );
+// }
+
+
 
 export function ProductCard({ item }: { item: MenuItem }) {
   const addItem = useCartStore((state) => state.addItem);
