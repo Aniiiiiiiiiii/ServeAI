@@ -101,7 +101,7 @@ export default function KitchenPage() {
           title="Kitchen Display"
           description="Kanban-ready prep board with large, readable cards and bulk movement workflows."
         />
-        <div className="grid gap-4 xl:grid-cols-4">
+        <div className="grid gap-4 xl:grid-cols-4 items-start">
           {columns.map((column) => {
             // Filter down orders matching this column's status scope
             const ordersInColumn = orders.filter((order) =>
@@ -120,7 +120,7 @@ export default function KitchenPage() {
             return (
               <section
                 key={column.title}
-                className="flex flex-col rounded-3xl border border-charcoal-100 bg-white/70 p-4 min-h-[500px]"
+                className="flex flex-col rounded-3xl border border-charcoal-100 bg-white/70 p-4 h-fit"
               >
                 {/* Column Title Header */}
                 <div className="mb-4 flex items-center justify-between">
@@ -146,7 +146,7 @@ export default function KitchenPage() {
                 )}
 
                 {/* Card Flow Container */}
-                <div className="grid gap-4 flex-1 overflow-y-auto align-top content-start">
+                <div className="grid gap-4  align-top content-start">
                   {ordersInColumn.map((order) => (
                     <OrderCard
                       key={order.id}
