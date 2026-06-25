@@ -41,29 +41,31 @@ import { generateInitials } from "@/utils/generateInitials";
 import { orderStatuses, statusTone } from "@/utils/orderStatus";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import {buttonVariants, Button} from "@/components/ui/button";
 
-export function Button({
-  children,
-  className,
-  variant = "primary",
-  ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost" | "danger" }) {
-  return (
-    <button
-      className={cn(
-        "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-lime-300 disabled:cursor-not-allowed disabled:opacity-50 ",
-        variant === "primary" && "bg-lime-400 text-charcoal-950 shadow-soft hover:bg-lime-300",
-        variant === "secondary" && "bg-charcoal-950 text-white hover:bg-charcoal-800",
-        variant === "ghost" && "bg-white text-charcoal-800 ring-1 ring-charcoal-100 hover:bg-charcoal-50",
-        variant === "danger" && "bg-rose-500 text-white hover:bg-rose-600",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-}
+
+// export function Button({
+//   children,
+//   className,
+//   variant = "primary",
+//   ...props
+// }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "secondary" | "ghost" | "danger" }) {
+//   return (
+//     <button
+//       className={cn(
+//         "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-lime-300 disabled:cursor-not-allowed disabled:opacity-50 ",
+//         variant === "primary" && "bg-lime-400 text-charcoal-950 shadow-soft hover:bg-lime-300",
+//         variant === "secondary" && "bg-charcoal-950 text-white hover:bg-charcoal-800",
+//         variant === "ghost" && "bg-white text-charcoal-800 ring-1 ring-charcoal-100 hover:bg-charcoal-50",
+//         variant === "danger" && "bg-rose-500 text-white hover:bg-rose-600",
+//         className,
+//       )}
+//       {...props}
+//     >
+//       {children}
+//     </button>
+//   );
+// }
 
 export function SectionCard({ children, className }: { children: ReactNode; className?: string }) {
   return <section className={cn("rounded-3xl border border-charcoal-100 bg-white p-5 shadow-soft", className)}>{children}</section>;
@@ -212,23 +214,23 @@ export function AIInsightCard({ insight }: { insight: AIInsight }) {
   );
 }
 
-export function InlineStatusSelect({ value, onChange }: { value: OrderStatus; onChange: (value: OrderStatus) => void }) {
-  return (
-    <select
-      aria-label="Update order status"
-      value={value}
-      onChange={(event) => {
-        onChange(event.target.value as OrderStatus);
-        toast.success("Order status updated");
-      }}
-      className="h-10 rounded-xl border border-charcoal-100 bg-white px-3 text-xs font-bold text-charcoal-800 outline-none focus:border-lime-400 focus:ring-4 focus:ring-lime-100"
-    >
-      {orderStatuses.map((status) => (
-        <option key={status}>{status}</option>
-      ))}
-    </select>
-  );
-}
+// export function InlineStatusSelect({ value, onChange }: { value: OrderStatus; onChange: (value: OrderStatus) => void }) {
+//   return (
+//     <select
+//       aria-label="Update order status"
+//       value={value}
+//       onChange={(event) => {
+//         onChange(event.target.value as OrderStatus);
+//         toast.success("Order status updated");
+//       }}
+//       className="h-10 rounded-xl border border-charcoal-100 bg-white px-3 text-xs font-bold text-charcoal-800 outline-none focus:border-lime-400 focus:ring-4 focus:ring-lime-100"
+//     >
+//       {orderStatuses.map((status) => (
+//         <option key={status}>{status}</option>
+//       ))}
+//     </select>
+//   );
+// }
 
 interface OrderCardProps {
   order: Order;

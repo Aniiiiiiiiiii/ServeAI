@@ -1,4 +1,5 @@
-import { AIInsightCard, DashboardCard, PageHeader } from "@/components/app-components";
+import { AIInsightCard, DashboardCard } from "@/components/app-components";
+import {PageHeader} from "@/components/common/PageHeader";
 import { insights } from "@/lib/demo/insights";
 
 export default function AIInsightsPage() {

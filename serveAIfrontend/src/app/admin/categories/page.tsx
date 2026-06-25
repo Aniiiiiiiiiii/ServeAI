@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button, ConfirmDialog, MenuCard, PageHeader } from "@/components/app-components";
+import { ConfirmDialog, MenuCard } from "@/components/app-components";
+import {PageHeader} from "@/components/common/PageHeader";
+
+import {buttonVariants, Button} from "@/components/ui/button";
 import { categories as demoCategories } from "@/lib/demo/categories";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";

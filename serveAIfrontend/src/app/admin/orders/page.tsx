@@ -1,7 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { FilterBar, OrderCard, PageHeader, SearchInput, StatusBadge, DataTable, InlineStatusSelect } from "@/components/app-components";
+import { FilterBar, OrderCard, SearchInput, StatusBadge, DataTable } from "@/components/app-components";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  InlineStatusSelect,
+} from "@/components/ui/select";
+import {PageHeader} from "@/components/common/PageHeader";
+
 import { orders as demoOrders } from "@/lib/demo/orders";
 import type { OrderStatus } from "@/types";
 import { formatCurrency } from "@/utils/formatCurrency";

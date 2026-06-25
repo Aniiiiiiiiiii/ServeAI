@@ -1,6 +1,10 @@
 "use client";
 
-import { Button, PageHeader, ReusableForm, SectionCard } from "@/components/app-components";
+import {  ReusableForm, SectionCard } from "@/components/app-components";
+import {PageHeader} from "@/components/common/PageHeader";
+
+import {buttonVariants, Button} from "@/components/ui/button";
+
 import { toast } from "sonner";
 
 export default function SettingsPage() {

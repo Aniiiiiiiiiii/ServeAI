@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import {
-  Button,
-  PageHeader,
   SectionCard,
   StatusBadge,
   icons,
 } from "@/components/app-components";
+import {PageHeader} from "@/components/common/PageHeader";
+
+import {buttonVariants, Button} from "@/components/ui/button";
 import { tables as demoTables } from "@/lib/demo/tables";
 import { Plus } from "lucide-react";
 

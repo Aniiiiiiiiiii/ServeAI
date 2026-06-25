@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CartSummary, ProductCard, SearchInput } from "@/components/app-components";
+import {buttonVariants, Button} from "@/components/ui/button";
 import { categories } from "@/lib/demo/categories";
 import { menuItems } from "@/lib/demo/menu";
 import { cn } from "@/utils/cn";

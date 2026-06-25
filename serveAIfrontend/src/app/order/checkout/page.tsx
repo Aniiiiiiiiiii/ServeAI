@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { Button, PageHeader, SectionCard, StatusBadge } from "@/components/app-components";
+import { SectionCard, StatusBadge } from "@/components/app-components";
+import {PageHeader} from "@/components/common/PageHeader";
+
+import {buttonVariants, Button} from "@/components/ui/button";
+
 
 export default function CheckoutPage() {
   return (

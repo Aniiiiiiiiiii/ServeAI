@@ -3,8 +3,11 @@
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
+import { toast } from "sonner";
 
-import { cn } from "./utils";
+import { cn } from "@/utils/cn"; // Aapke project configuration ke hisab se absolute path
+import type { OrderStatus } from "@/types";
+import { orderStatuses } from "@/utils/orderStatus";
 
 export const Select = SelectPrimitive.Root;
 
@@ -59,11 +62,12 @@ export function SelectItem({
   return (
     <SelectPrimitive.Item
       className={cn(
-        "relative flex cursor-default select-none items-center rounded-xl px-3 py-2 text-sm font-bold text-charcoal-950 outline-none focus:bg-charcoal-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        "relative flex cursor-default select-none items-center rounded-xl px-3 py-2 pr-9 text-sm font-bold text-charcoal-950 outline-none focus:bg-charcoal-50 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className
       )}
       {...props}
     >
+      {/* pr-9 padding right ensure karta hai ki text checkbox icon ke upar overlap na ho */}
       <span className="absolute right-3 inline-flex h-4 w-4 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
           <Check className="h-4 w-4" />
@@ -84,3 +88,37 @@ export function SelectValue({
   return <SelectPrimitive.Value placeholder={placeholder} {...props} />;
 }
 
+/* ==========================================
+   MERGED WRAPPER FOR INLINE STATUS SELECT
+   ========================================== */
+interface InlineStatusSelectProps {
+  value: OrderStatus;
+  onChange: (value: OrderStatus) => void;
+}
+
+export function InlineStatusSelect({ value, onChange }: InlineStatusSelectProps) {
+  const handleValueChange = (newValue: string) => {
+    onChange(newValue as OrderStatus);
+    toast.success("Order status updated");
+  };
+
+  return (
+    <Select value={value} onValueChange={handleValueChange}>
+      <SelectTrigger className="h-10 rounded-xl text-xs text-charcoal-800 border-charcoal-100 bg-white px-3 font-bold outline-none focus:border-lime-400 focus:ring-4 focus:ring-lime-100">
+        <SelectValue placeholder="Update order status" />
+      </SelectTrigger>
+      
+      <SelectContent className="rounded-xl border-charcoal-100 bg-white p-1 shadow-soft">
+        {orderStatuses.map((status) => (
+          <SelectItem 
+            key={status} 
+            value={status} 
+            className="text-xs font-bold text-charcoal-950 focus:bg-charcoal-50"
+          >
+            {status}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}

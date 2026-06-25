@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ChefHat, Lock, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button, SectionCard } from "@/components/app-components";
+import { SectionCard } from "@/components/app-components";
+import {buttonVariants, Button} from "@/components/ui/button";
 import { mockUsers } from "@/lib/demo/users";
 import { useAuth } from "@/hooks/useAuth";
 

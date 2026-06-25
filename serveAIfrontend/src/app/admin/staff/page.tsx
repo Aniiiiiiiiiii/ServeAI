@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import {
-  Button,
+  
   DataTable,
   FilterBar,
-  PageHeader,
   SearchInput,
   StatusBadge,
 } from "@/components/app-components";
+import {PageHeader} from "@/components/common/PageHeader";
+
+import {buttonVariants, Button} from "@/components/ui/button";
 import { staff as demoStaff } from "@/lib/demo/staff";
 import { Plus } from "lucide-react";
 

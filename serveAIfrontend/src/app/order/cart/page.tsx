@@ -1,6 +1,10 @@
 "use client";
 
-import { Button, CartItem, PageHeader, SectionCard } from "@/components/app-components";
+import { CartItem, SectionCard } from "@/components/app-components";
+import {PageHeader} from "@/components/common/PageHeader";
+
+import {buttonVariants, Button} from "@/components/ui/button";
+
 import { useCartStore } from "@/store/cart-store";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { useRouter } from "next/navigation";

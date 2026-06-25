@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { AddItemDialog, DataTable, FilterBar, PageHeader, SearchInput, StatusBadge } from "@/components/app-components";
+import { AddItemDialog, DataTable, FilterBar, SearchInput, StatusBadge } from "@/components/app-components";
+import {PageHeader} from "@/components/common/PageHeader";
+
 import { categories } from "@/lib/demo/categories";
 import { menuItems as demoMenu } from "@/lib/demo/menu";
 import { toast } from "sonner";

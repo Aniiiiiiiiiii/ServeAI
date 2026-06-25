@@ -1,4 +1,6 @@
-import { AIInsightCard, PageHeader, SectionCard, StatusBadge } from "@/components/app-components";
+import { AIInsightCard,  SectionCard, StatusBadge } from "@/components/app-components";
+import {PageHeader} from "@/components/common/PageHeader";
+
 import { insights } from "@/lib/demo/insights";
 import { reviews } from "@/lib/demo/reviews";
 import { formatDate } from "@/utils/formatDate";
