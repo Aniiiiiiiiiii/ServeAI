@@ -2,12 +2,11 @@
 
 import { useState } from "react";
 import {
-  
-  DataTable,
   FilterBar,
   SearchInput,
   StatusBadge,
 } from "@/components/app-components";
+import {DataTable} from "@/components/common/DataTable";
 import {PageHeader} from "@/components/common/PageHeader";
 
 import {buttonVariants, Button} from "@/components/ui/button";

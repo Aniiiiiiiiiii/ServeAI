@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { FilterBar, OrderCard, SearchInput, StatusBadge, DataTable } from "@/components/app-components";
+import { FilterBar, OrderCard, SearchInput, StatusBadge } from "@/components/app-components";
+import {DataTable} from "@/components/common/DataTable";
+
 import {
   Select,
   SelectContent,

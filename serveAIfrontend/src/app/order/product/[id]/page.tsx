@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ProductCard, SectionCard, StatusBadge } from "@/components/app-components";
+import { SectionCard, StatusBadge } from "@/components/app-components";
+import {ProductCard} from "@/components/common/ProductCard";
 import {buttonVariants, Button} from "@/components/ui/button";
 
 import { menuItems } from "@/lib/demo/menu";

@@ -1,6 +1,7 @@
 "use client";
 
-import { CartItem, SectionCard } from "@/components/app-components";
+import { SectionCard } from "@/components/app-components";
+import {CartItem} from "@/components/common/Cart";
 import {PageHeader} from "@/components/common/PageHeader";
 
 import {buttonVariants, Button} from "@/components/ui/button";

@@ -1,4 +1,5 @@
-import { AdminShell } from "@/components/app-components";
+
+import {AdminShell} from "@/components/common/AdminShell";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return <AdminShell>{children}</AdminShell>;

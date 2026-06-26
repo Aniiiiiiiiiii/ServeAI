@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { AddItemDialog, DataTable, FilterBar, SearchInput, StatusBadge } from "@/components/app-components";
+import { AddItemDialog, FilterBar, SearchInput, StatusBadge } from "@/components/app-components";
+import {DataTable} from "@/components/common/DataTable";
 import {PageHeader} from "@/components/common/PageHeader";
 
 import { categories } from "@/lib/demo/categories";

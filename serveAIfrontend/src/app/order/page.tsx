@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CartSummary, ProductCard, SearchInput } from "@/components/app-components";
+import { SearchInput } from "@/components/app-components";
+import {CartSummary} from "@/components/common/Cart";
+import {ProductCard} from "@/components/common/ProductCard";
 import {buttonVariants, Button} from "@/components/ui/button";
 import { categories } from "@/lib/demo/categories";
 import { menuItems } from "@/lib/demo/menu";
