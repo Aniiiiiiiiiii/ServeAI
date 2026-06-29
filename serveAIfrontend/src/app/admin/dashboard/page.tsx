@@ -1,6 +1,8 @@
 "use client";
 
-import { AIInsightCard, DashboardCard, OrderCard, StatCard, icons } from "@/components/app-components";
+import { AIInsightCard, DashboardCard, StatCard, icons } from "@/components/app-components";
+import {OrderCard} from "@/components/common/OrderCard";
+
 import {PageHeader} from "@/components/common/PageHeader";
 import { insights } from "@/lib/demo/insights";
 import { orders } from "@/lib/demo/orders";

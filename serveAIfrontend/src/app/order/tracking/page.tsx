@@ -1,4 +1,6 @@
-import { OrderCard, SectionCard, Timeline } from "@/components/app-components";
+import { SectionCard, Timeline } from "@/components/app-components";
+import {OrderCard} from "@/components/common/OrderCard";
+
 import {PageHeader} from "@/components/common/PageHeader";
 import { orders } from "@/lib/demo/orders";
 import { orderStatuses } from "@/utils/orderStatus";

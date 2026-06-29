@@ -60,7 +60,7 @@ export const orders: Order[] = [
     id: "ORD-2403",
     room: "Room 208",
     guest: "Nisha Shah",
-    status: "Ready",
+    status: "Placed",
     total: 448,
     createdAt: "2026-05-29T13:52:00+05:30",
     eta: "Pickup now",

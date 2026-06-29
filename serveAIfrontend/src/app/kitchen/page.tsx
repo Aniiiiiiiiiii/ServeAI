@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import {
-  OrderCard,
-  RoleTopbar,
   StatusBadge,
 } from "@/components/app-components";
 import {PageHeader} from "@/components/common/PageHeader";
+import {RoleTopbar} from "@/components/common/RoleTopbar";
+import {OrderCard} from "@/components/common/OrderCard";
+
 
 import {buttonVariants, Button} from "@/components/ui/button";
 import { orders as demoOrders } from "@/lib/demo/orders";
@@ -27,72 +28,71 @@ const columns: {
 ];
 
 export default function KitchenPage() {
-  const [orders, setOrders] = useState(demoOrders);
+  // Demo orders extended type locally mapping if readyAt exists
+  const [orders, setOrders] = useState(() => 
+    demoOrders.map(order => ({ ...order, readyAt: (order as any).readyAt || undefined }))
+  );
 
-  // function moveOrder(id: string, status: OrderStatus) {
-  //   setOrders((prev) =>
-  //     prev.map((order) => (order.id === id ? { ...order, status } : order)),
-  //   );
-  //   toast.success(`Order moved to ${status}`);
-  // }
+  // Track selected order IDs globally at the parent level
+  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
 
-    // Track selected order IDs globally at the parent level
-    const[selectedOrderIds,setSelectedOrderIds] = useState<string[]>([]);
+  // Individual toggle function passed down to OrderCard
+  function toggleOrderSelection(id: string) {
+    setSelectedOrderIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  }
 
-      // Individual toggle function passed down to OrderCard
+  // Handle Select All click logic for a specific column
+  function handleSelectAllToggle(columnStatuses: OrderStatus[], currentOrdersInColumn: typeof orders) {
+    const columnOrderIds = currentOrdersInColumn.map((o) => o.id);
+    const areAllSelected = columnOrderIds.every((id) => selectedOrderIds.includes(id));
 
-      function toggleOrderSelection(id:string) {
-        setSelectedOrderIds((prev) => 
-          prev.includes(id) ? prev.filter((item) => item !== id) : [...prev,id]
-        )
-      }
+    if (areAllSelected) {
+      // uncheck all column
+      setSelectedOrderIds((prev) => prev.filter((id) => !columnOrderIds.includes(id)));
+    } else {
+      // check all
+      setSelectedOrderIds((prev) => {
+        const uniqueIds = new Set([...prev, ...columnOrderIds]);
+        return Array.from(uniqueIds);
+      });
+    }
+  }
 
-        // Handle Select All click logic for a specific column
-      function handleSelectAllToggle(columnStatuses:OrderStatus[], currentOrdersInColumn: typeof demoOrders){
-        const columnOrderIds = currentOrdersInColumn.map((o)=>o.id);
-        const areAllSelected = columnOrderIds.every((id) => selectedOrderIds.includes(id));
+  // Bulk move for the single column button
+  function handleColumnMove(columnStatuses: OrderStatus[], nextStatus: OrderStatus) {
+    const currentOrdersInColumn = orders.filter((order) => columnStatuses.includes(order.status));
+    const orderIdsInColumn = currentOrdersInColumn.map((o) => o.id);
 
+    // Determine target items: chosen individuals, or fallback to moving everything in this column
+    const selectedInColumn = orderIdsInColumn.filter((id) => selectedOrderIds.includes(id));
+    const idsToMove = selectedInColumn.length > 0 ? selectedInColumn : orderIdsInColumn;
 
-        if(areAllSelected){
-          //uncheck all column
-          setSelectedOrderIds((prev) => prev.filter((id) => !columnOrderIds.includes(id)))
-        }else{
-          //check all
-          setSelectedOrderIds((prev) => {
-            const uniqueIds = new Set([...prev, ...columnOrderIds]);
-            return Array.from(uniqueIds);
-          });
+    if (idsToMove.length === 0) {
+      toast.error("No orders to move in this column.");
+      return;
+    }
+
+    setOrders((prev) =>
+      prev.map((order) => {
+        if (idsToMove.includes(order.id)) {
+          // INDUSTRY STANDARDS: Trigger SLA timestamp tracking precisely on the workflow junction
+          const isMovingToReady = nextStatus === "Ready";
+          return { 
+            ...order, 
+            status: nextStatus,
+            readyAt: isMovingToReady ? new Date().toISOString() : order.readyAt 
+          };
         }
+        return order;
+      })
+    );
 
-
-      }
-
-
-        // Bulk move for the single column button
-      function handleColumnMove(columnStatuses: OrderStatus[], nextStatus: OrderStatus) {
-        const currentOrdersInColumn = orders.filter((order) => columnStatuses.includes(order.status));
-        const orderIdsInColumn = currentOrdersInColumn.map((o) => o.id);
-        
-        // Determine target items: chosen individuals, or fallback to moving everything in this column
-        const selectedInColumn = orderIdsInColumn.filter((id) => selectedOrderIds.includes(id));
-        const idsToMove = selectedInColumn.length > 0 ? selectedInColumn : orderIdsInColumn;
-
-        if (idsToMove.length === 0) {
-          toast.error("No orders to move in this column.");
-          return;
-        }
-
-        setOrders((prev) =>
-          prev.map((order) =>
-            idsToMove.includes(order.id) ? { ...order, status: nextStatus } : order
-          )
-        );
-
-        // Clear moved selections from state
-        setSelectedOrderIds((prev) => prev.filter((id) => !idsToMove.includes(id)));
-        toast.success(`Moved ${idsToMove.length} order(s) to ${nextStatus}`);
-      }
-
+    // Clear moved selections from state
+    setSelectedOrderIds((prev) => prev.filter((id) => !idsToMove.includes(id)));
+    toast.success(`Moved ${idsToMove.length} order(s) to ${nextStatus}`);
+  }
 
   return (
     <main className="min-h-screen bg-charcoal-50">
@@ -147,7 +147,7 @@ export default function KitchenPage() {
                 )}
 
                 {/* Card Flow Container */}
-                <div className="grid gap-4  align-top content-start">
+                <div className="grid gap-4 align-top content-start">
                   {ordersInColumn.map((order) => (
                     <OrderCard
                       key={order.id}
@@ -156,7 +156,7 @@ export default function KitchenPage() {
                       onSelectToggle={() => toggleOrderSelection(order.id)}
                     />
                   ))}
-                  
+
                   {ordersInColumn.length === 0 && (
                     <div className="text-center py-8 text-sm text-charcoal-400 font-medium italic">
                       No active orders
@@ -169,7 +169,6 @@ export default function KitchenPage() {
                   <div className="mt-4 pt-3 border-t border-charcoal-100/50">
                     <Button
                       className="w-full shadow-sm font-bold"
-                      // variant={directSelectionsCount > 0 ? "default" : "secondary"}
                       onClick={() => handleColumnMove(column.statuses, column.next!)}
                     >
                       {directSelectionsCount > 0
