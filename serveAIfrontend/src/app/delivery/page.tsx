@@ -13,6 +13,9 @@ import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
+import { useOrderStore } from "@/store/useOrderStore";
+
+
 // Delivery Workflow Columns Definition matching enterprise standards
 const columns: {
   title: string;
@@ -41,9 +44,13 @@ const columns: {
 
 export default function DeliveryPage() {
   // Demo orders extended type locally mapping if readyAt exists
-  const [orders, setOrders] = useState(() => 
-    demoOrders.map(order => ({ ...order, readyAt: (order as any).readyAt || undefined }))
-  );
+  // const [orders, setOrders] = useState(() => 
+  //   demoOrders.map(order => ({ ...order, readyAt: (order as any).readyAt || undefined }))
+  // );
+
+  const orders = useOrderStore((state) => state.orders);
+  const updateOrderStatus = useOrderStore((state) => state.updateOrderStatus);
+
 
   // Track selected order IDs globally at the parent level
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
@@ -86,17 +93,19 @@ export default function DeliveryPage() {
       return;
     }
 
-    setOrders((prev) =>
-      prev.map((order) => {
-        if (idsToMove.includes(order.id)) {
-          return { 
-            ...order, 
-            status: nextStatus 
-          };
-        }
-        return order;
-      })
-    );
+    // setOrders((prev) =>
+    //   prev.map((order) => {
+    //     if (idsToMove.includes(order.id)) {
+    //       return { 
+    //         ...order, 
+    //         status: nextStatus 
+    //       };
+    //     }
+    //     return order;
+    //   })
+    // );
+
+    updateOrderStatus(idsToMove, nextStatus);
 
     // Clear moved selections from state array
     setSelectedOrderIds((prev) => prev.filter((id) => !idsToMove.includes(id)));

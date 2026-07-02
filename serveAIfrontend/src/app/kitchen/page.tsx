@@ -15,6 +15,8 @@ import type { OrderStatus } from "@/types";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { useOrderStore } from "@/store/useOrderStore";
+
 
 const columns: {
   title: string;
@@ -29,9 +31,13 @@ const columns: {
 
 export default function KitchenPage() {
   // Demo orders extended type locally mapping if readyAt exists
-  const [orders, setOrders] = useState(() => 
-    demoOrders.map(order => ({ ...order, readyAt: (order as any).readyAt || undefined }))
-  );
+  // const [orders, setOrders] = useState(() => 
+  //   demoOrders.map(order => ({ ...order, readyAt: (order as any).readyAt || undefined }))
+  // );
+
+  const orders = useOrderStore((state) => state.orders);
+  const updateOrderStatus = useOrderStore((state) => state.updateOrderStatus);
+
 
   // Track selected order IDs globally at the parent level
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
@@ -74,20 +80,22 @@ export default function KitchenPage() {
       return;
     }
 
-    setOrders((prev) =>
-      prev.map((order) => {
-        if (idsToMove.includes(order.id)) {
-          // INDUSTRY STANDARDS: Trigger SLA timestamp tracking precisely on the workflow junction
-          const isMovingToReady = nextStatus === "Ready";
-          return { 
-            ...order, 
-            status: nextStatus,
-            readyAt: isMovingToReady ? new Date().toISOString() : order.readyAt 
-          };
-        }
-        return order;
-      })
-    );
+    // setOrders((prev) =>
+    //   prev.map((order) => {
+    //     if (idsToMove.includes(order.id)) {
+    //       // INDUSTRY STANDARDS: Trigger SLA timestamp tracking precisely on the workflow junction
+    //       const isMovingToReady = nextStatus === "Ready";
+    //       return { 
+    //         ...order, 
+    //         status: nextStatus,
+    //         readyAt: isMovingToReady ? new Date().toISOString() : order.readyAt 
+    //       };
+    //     }
+    //     return order;
+    //   })
+    // );
+
+    updateOrderStatus(idsToMove, nextStatus);
 
     // Clear moved selections from state
     setSelectedOrderIds((prev) => prev.filter((id) => !idsToMove.includes(id)));

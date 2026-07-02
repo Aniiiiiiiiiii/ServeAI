@@ -662,8 +662,8 @@ export function AddItemDialog() {
     <>
       <Button onClick={() => setOpen(true)}><Plus className="size-4" /> Add item</Button>
       {open ? (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-charcoal-950/40 p-4" role="dialog" aria-modal="true">
-          <ReusableForm>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-charcoal-950/40 p-4 " role="dialog" aria-modal="true">
+          <ReusableForm >
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-black">Create menu item</h2>
               <button type="button" aria-label="Close dialog" onClick={() => setOpen(false)}><X className="size-5" /></button>
