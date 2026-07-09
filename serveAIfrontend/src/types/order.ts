@@ -3,6 +3,7 @@ export type OrderStatus =
   | "Accepted"
   | "Preparing"
   | "Ready"
+  | "Delayed"
   | "Out For Delivery"
   | "Delivered"
   | "Feedback Pending";
@@ -24,5 +25,6 @@ export interface Order {
   total: number;
   createdAt: string;
   eta: string;
+  readyAt?: string;
   paymentStatus: "Paid" | "Pending" | "Room Charge";
 }

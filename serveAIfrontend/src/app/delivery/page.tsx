@@ -86,7 +86,9 @@ export default function DeliveryPage() {
 
     // Determine target items: chosen individuals, or fallback to moving everything in this column
     const selectedInColumn = orderIdsInColumn.filter((id) => selectedOrderIds.includes(id));
-    const idsToMove = selectedInColumn.length > 0 ? selectedInColumn : orderIdsInColumn;
+    // const idsToMove = selectedInColumn.length > 0 ? selectedInColumn : orderIdsInColumn;
+    const idsToMove = selectedInColumn;
+
 
     if (idsToMove.length === 0) {
       toast.error("No orders to move in this column.");
@@ -187,7 +189,7 @@ export default function DeliveryPage() {
                 </div>
 
                 {/* Single Footer Column Action Button */}
-                {column.next && ordersInColumn.length > 0 && (
+                {column.next && ordersInColumn.length > 0 && ordersInColumn.length > 0 && (
                   <div className="mt-4 pt-3 border-t border-charcoal-100/50">
                     <Button
                       className="w-full shadow-sm font-bold"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   StatusBadge,
 } from "@/components/app-components";
@@ -22,11 +22,12 @@ const columns: {
   title: string;
   statuses: OrderStatus[];
   next?: OrderStatus;
+  hideMoveButton?: boolean;
 }[] = [
   { title: "New Orders", statuses: ["Placed", "Accepted"], next: "Preparing" },
   { title: "Preparing", statuses: ["Preparing"], next: "Ready" },
   { title: "Ready", statuses: ["Ready"], next: "Out For Delivery" },
-  { title: "Delayed", statuses: ["Out For Delivery"] },
+  { title: "Delayed", statuses: ["Delayed"] },
 ];
 
 export default function KitchenPage() {
@@ -38,9 +39,21 @@ export default function KitchenPage() {
   const orders = useOrderStore((state) => state.orders);
   const updateOrderStatus = useOrderStore((state) => state.updateOrderStatus);
 
+  const markExpiredReadyOrdersAsDelayed = useOrderStore(
+    (state) => state.markExpiredReadyOrdersAsDelayed
+  );
+
 
   // Track selected order IDs globally at the parent level
   const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      markExpiredReadyOrdersAsDelayed();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [markExpiredReadyOrdersAsDelayed]);
 
   // Individual toggle function passed down to OrderCard
   function toggleOrderSelection(id: string) {
@@ -73,7 +86,8 @@ export default function KitchenPage() {
 
     // Determine target items: chosen individuals, or fallback to moving everything in this column
     const selectedInColumn = orderIdsInColumn.filter((id) => selectedOrderIds.includes(id));
-    const idsToMove = selectedInColumn.length > 0 ? selectedInColumn : orderIdsInColumn;
+    // const idsToMove = selectedInColumn.length > 0 ? selectedInColumn : orderIdsInColumn;
+    const idsToMove = selectedInColumn;
 
     if (idsToMove.length === 0) {
       toast.error("No orders to move in this column.");
@@ -113,9 +127,14 @@ export default function KitchenPage() {
         <div className="grid gap-4 xl:grid-cols-4 items-start">
           {columns.map((column) => {
             // Filter down orders matching this column's status scope
-            const ordersInColumn = orders.filter((order) =>
-              column.statuses.includes(order.status)
-            );
+            const ordersInColumn =
+            column.title === "Delayed"
+              ? orders.filter(
+                  (order) => order.status === "Ready" && order.isDelayed
+                )
+              : orders.filter((order) =>
+                  column.statuses.includes(order.status)
+                );
 
             // Calculate if the column's select-all box should look checked
             const columnOrderIds = ordersInColumn.map((o) => o.id);
@@ -173,7 +192,7 @@ export default function KitchenPage() {
                 </div>
 
                 {/* Single Footer Column Move Button */}
-                {column.next && ordersInColumn.length > 0 && (
+                {/* {column.next && ordersInColumn.length > 0 && (
                   <div className="mt-4 pt-3 border-t border-charcoal-100/50">
                     <Button
                       className="w-full shadow-sm font-bold"
@@ -182,6 +201,18 @@ export default function KitchenPage() {
                       {directSelectionsCount > 0
                         ? `Move Selected (${directSelectionsCount})`
                         : "Move All Orders"}
+                    </Button>
+                  </div>
+                )} */}
+                {column.next && !column.statuses.includes("Ready") && ordersInColumn.length > 0 && (
+                  <div className="mt-4 pt-3 border-t border-charcoal-100/50">
+                    <Button
+                      className="w-full shadow-sm font-bold"
+                      disabled={directSelectionsCount === 0}
+                      onClick={() => handleColumnMove(column.statuses, column.next!)}
+                    >
+                      Move Selected
+                      {directSelectionsCount > 0 ? ` (${directSelectionsCount})` : ""}
                     </Button>
                   </div>
                 )}
