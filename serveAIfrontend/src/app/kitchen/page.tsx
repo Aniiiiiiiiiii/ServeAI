@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useOrderStore } from "@/store/useOrderStore";
+import { useKanbanSelection } from "@/hooks/useKanbanSelection";
 
 
 const columns: {
@@ -23,12 +24,34 @@ const columns: {
   statuses: OrderStatus[];
   next?: OrderStatus;
   hideMoveButton?: boolean;
+  allowSelection?: boolean;
 }[] = [
-  { title: "New Orders", statuses: ["Placed", "Accepted"], next: "Preparing" },
-  { title: "Preparing", statuses: ["Preparing"], next: "Ready" },
-  { title: "Ready", statuses: ["Ready"], next: "Out For Delivery" },
-  { title: "Delayed", statuses: ["Delayed"] },
+{
+    title: "New Orders",
+    statuses: ["Placed", "Accepted"],
+    next: "Preparing",
+    allowSelection: true,
+  },
+  {
+    title: "Preparing",
+    statuses: ["Preparing"],
+    next: "Ready",
+    allowSelection: true,
+  },
+  {
+    title: "Ready",
+    statuses: ["Ready"],
+    next: "Out For Delivery",
+    allowSelection: false,
+  },
+  {
+    title: "Delayed",
+    statuses: ["Delayed"],
+    allowSelection: false,
+  },
 ];
+
+
 
 export default function KitchenPage() {
   // Demo orders extended type locally mapping if readyAt exists
@@ -39,13 +62,24 @@ export default function KitchenPage() {
   const orders = useOrderStore((state) => state.orders);
   const updateOrderStatus = useOrderStore((state) => state.updateOrderStatus);
 
+
+  const {
+    selectedIds,
+    toggleSelection,
+    toggleSelectAll,
+    isSelected,
+    isAllSelected,
+    getSelectedCount,
+    clearSelection,
+  } = useKanbanSelection();
+
   const markExpiredReadyOrdersAsDelayed = useOrderStore(
     (state) => state.markExpiredReadyOrdersAsDelayed
   );
 
 
   // Track selected order IDs globally at the parent level
-  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  // const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -56,28 +90,28 @@ export default function KitchenPage() {
   }, [markExpiredReadyOrdersAsDelayed]);
 
   // Individual toggle function passed down to OrderCard
-  function toggleOrderSelection(id: string) {
-    setSelectedOrderIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  }
+  // function toggleOrderSelection(id: string) {
+  //   setSelectedOrderIds((prev) =>
+  //     prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+  //   );
+  // }
 
-  // Handle Select All click logic for a specific column
-  function handleSelectAllToggle(columnStatuses: OrderStatus[], currentOrdersInColumn: typeof orders) {
-    const columnOrderIds = currentOrdersInColumn.map((o) => o.id);
-    const areAllSelected = columnOrderIds.every((id) => selectedOrderIds.includes(id));
+  // // Handle Select All click logic for a specific column
+  // function handleSelectAllToggle(columnStatuses: OrderStatus[], currentOrdersInColumn: typeof orders) {
+  //   const columnOrderIds = currentOrdersInColumn.map((o) => o.id);
+  //   const areAllSelected = columnOrderIds.every((id) => selectedOrderIds.includes(id));
 
-    if (areAllSelected) {
-      // uncheck all column
-      setSelectedOrderIds((prev) => prev.filter((id) => !columnOrderIds.includes(id)));
-    } else {
-      // check all
-      setSelectedOrderIds((prev) => {
-        const uniqueIds = new Set([...prev, ...columnOrderIds]);
-        return Array.from(uniqueIds);
-      });
-    }
-  }
+  //   if (areAllSelected) {
+  //     // uncheck all column
+  //     setSelectedOrderIds((prev) => prev.filter((id) => !columnOrderIds.includes(id)));
+  //   } else {
+  //     // check all
+  //     setSelectedOrderIds((prev) => {
+  //       const uniqueIds = new Set([...prev, ...columnOrderIds]);
+  //       return Array.from(uniqueIds);
+  //     });
+  //   }
+  // }
 
   // Bulk move for the single column button
   function handleColumnMove(columnStatuses: OrderStatus[], nextStatus: OrderStatus) {
@@ -85,7 +119,7 @@ export default function KitchenPage() {
     const orderIdsInColumn = currentOrdersInColumn.map((o) => o.id);
 
     // Determine target items: chosen individuals, or fallback to moving everything in this column
-    const selectedInColumn = orderIdsInColumn.filter((id) => selectedOrderIds.includes(id));
+    const selectedInColumn = orderIdsInColumn.filter((id) => selectedIds.includes(id));
     // const idsToMove = selectedInColumn.length > 0 ? selectedInColumn : orderIdsInColumn;
     const idsToMove = selectedInColumn;
 
@@ -112,7 +146,8 @@ export default function KitchenPage() {
     updateOrderStatus(idsToMove, nextStatus);
 
     // Clear moved selections from state
-    setSelectedOrderIds((prev) => prev.filter((id) => !idsToMove.includes(id)));
+    // setSelectedOrderIds((prev) => prev.filter((id) => !idsToMove.includes(id)));
+    clearSelection(idsToMove);
     toast.success(`Moved ${idsToMove.length} order(s) to ${nextStatus}`);
   }
 
@@ -138,12 +173,14 @@ export default function KitchenPage() {
 
             // Calculate if the column's select-all box should look checked
             const columnOrderIds = ordersInColumn.map((o) => o.id);
-            const isSelectAllChecked =
-              columnOrderIds.length > 0 &&
-              columnOrderIds.every((id) => selectedOrderIds.includes(id));
+            // const isSelectAllChecked =
+            //   columnOrderIds.length > 0 &&
+            //   columnOrderIds.every((id) => selectedOrderIds.includes(id));
+            const isSelectAllChecked = isAllSelected(columnOrderIds);
 
             // Determine if a selection exists in this column to dynamically rename the button
-            const directSelectionsCount = columnOrderIds.filter((id) => selectedOrderIds.includes(id)).length;
+            // const directSelectionsCount = columnOrderIds.filter((id) => selectedOrderIds.includes(id)).length;
+            const directSelectionsCount = getSelectedCount(columnOrderIds);
 
             return (
               <section
@@ -157,13 +194,14 @@ export default function KitchenPage() {
                 </div>
 
                 {/* Select All Action Bar */}
-                {ordersInColumn.length > 0 && (
+                {column.allowSelection && ordersInColumn.length > 0 && (
                   <FieldGroup className="mx-auto w-56 mb-4">
                     <Field orientation="horizontal" className="flex items-center gap-2 cursor-pointer">
                       <Checkbox
                         id={`selectAll-${column.title}`}
                         checked={isSelectAllChecked}
-                        onCheckedChange={() => handleSelectAllToggle(column.statuses, ordersInColumn)}
+                        // onCheckedChange={() => handleSelectAllToggle(column.statuses, ordersInColumn)}
+                        onCheckedChange={() =>toggleSelectAll(columnOrderIds)}
                         className="border-gray-600"
                       />
                       <FieldLabel htmlFor={`selectAll-${column.title}`} className="cursor-pointer font-medium select-none">
@@ -177,11 +215,12 @@ export default function KitchenPage() {
                 <div className="grid gap-4 align-top content-start">
                   {ordersInColumn.map((order) => (
                     <OrderCard
-                      key={order.id}
-                      order={order}
-                      isSelected={selectedOrderIds.includes(order.id)}
-                      onSelectToggle={() => toggleOrderSelection(order.id)}
-                    />
+                        key={order.id}
+                        order={order}
+                        showCheckbox={column.allowSelection}
+                        isSelected={isSelected(order.id)}
+                        onSelectToggle={() => toggleSelection(order.id)}
+                      />
                   ))}
 
                   {ordersInColumn.length === 0 && (
@@ -207,10 +246,10 @@ export default function KitchenPage() {
                 {column.next && !column.statuses.includes("Ready") && ordersInColumn.length > 0 && (
                   <div className="mt-4 pt-3 border-t border-charcoal-100/50">
                     <Button
-                      className="w-full shadow-sm font-bold"
-                      disabled={directSelectionsCount === 0}
-                      onClick={() => handleColumnMove(column.statuses, column.next!)}
-                    >
+                        className="w-full shadow-sm font-bold"
+                        disabled={directSelectionsCount <= 0}
+                        onClick={() => handleColumnMove(column.statuses, column.next!)}
+                      >
                       Move Selected
                       {directSelectionsCount > 0 ? ` (${directSelectionsCount})` : ""}
                     </Button>

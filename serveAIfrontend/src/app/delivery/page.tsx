@@ -14,33 +14,41 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 import { useOrderStore } from "@/store/useOrderStore";
+import { useKanbanSelection } from "@/hooks/useKanbanSelection";
 
 
 // Delivery Workflow Columns Definition matching enterprise standards
-const columns: {
+ const columns: {
   title: string;
   statuses: OrderStatus[];
   actionLabel: string;
   next?: OrderStatus;
+  allowSelection?: boolean;
 }[] = [
-  { 
-    title: "Ready for Pickup", 
-    statuses: ["Ready"], 
-    actionLabel: "Start Delivery", 
-    next: "Out For Delivery" 
+   {
+    title: "Ready for Pickup",
+    statuses: ["Ready"],
+    next: "Out For Delivery",
+    actionLabel: "Start Delivery",
+    allowSelection: true,
+    
   },
-  { 
-    title: "Active Deliveries", 
-    statuses: ["Out For Delivery"], 
-    actionLabel: "Mark Delivered", 
-    next: "Delivered" 
+  {
+    title: "Active Deliveries",
+    statuses: ["Out For Delivery"],
+    next: "Delivered",
+    actionLabel: "Mark Delivered",
+    allowSelection: true,
   },
-  { 
-    title: "Completed Deliveries", 
+  {
+    title: "Completed Deliveries",
     statuses: ["Delivered"],
-    actionLabel: "Completed"
+    actionLabel: "Completed",
+    allowSelection: false,
   },
 ];
+
+
 
 export default function DeliveryPage() {
   // Demo orders extended type locally mapping if readyAt exists
@@ -51,33 +59,42 @@ export default function DeliveryPage() {
   const orders = useOrderStore((state) => state.orders);
   const updateOrderStatus = useOrderStore((state) => state.updateOrderStatus);
 
+  const {
+    selectedIds,
+    toggleSelection,
+    toggleSelectAll,
+    isSelected,
+    isAllSelected,
+    getSelectedCount,
+    clearSelection,
+  } = useKanbanSelection();
 
   // Track selected order IDs globally at the parent level
-  const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
+  // const [selectedOrderIds, setSelectedOrderIds] = useState<string[]>([]);
 
   // Individual toggle function passed down to OrderCard (Same as Kitchen)
-  function toggleOrderSelection(id: string) {
-    setSelectedOrderIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
-  }
+  // function toggleOrderSelection(id: string) {
+  //   setSelectedOrderIds((prev) =>
+  //     prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+  //   );
+  // }
 
-  // Handle Select All click logic for a specific delivery column
-  function handleSelectAllToggle(columnStatuses: OrderStatus[], currentOrdersInColumn: typeof orders) {
-    const columnOrderIds = currentOrdersInColumn.map((o) => o.id);
-    const areAllSelected = columnOrderIds.every((id) => selectedOrderIds.includes(id));
+  // // Handle Select All click logic for a specific delivery column
+  // function handleSelectAllToggle(columnStatuses: OrderStatus[], currentOrdersInColumn: typeof orders) {
+  //   const columnOrderIds = currentOrdersInColumn.map((o) => o.id);
+  //   const areAllSelected = columnOrderIds.every((id) => selectedOrderIds.includes(id));
 
-    if (areAllSelected) {
-      // Uncheck all in this column
-      setSelectedOrderIds((prev) => prev.filter((id) => !columnOrderIds.includes(id)));
-    } else {
-      // Check all in this column safely maintaining previous column selections
-      setSelectedOrderIds((prev) => {
-        const uniqueIds = new Set([...prev, ...columnOrderIds]);
-        return Array.from(uniqueIds);
-      });
-    }
-  }
+  //   if (areAllSelected) {
+  //     // Uncheck all in this column
+  //     setSelectedOrderIds((prev) => prev.filter((id) => !columnOrderIds.includes(id)));
+  //   } else {
+  //     // Check all in this column safely maintaining previous column selections
+  //     setSelectedOrderIds((prev) => {
+  //       const uniqueIds = new Set([...prev, ...columnOrderIds]);
+  //       return Array.from(uniqueIds);
+  //     });
+  //   }
+  // }
 
   // Bulk move workflow for the single footer button callout
   function handleColumnMove(columnStatuses: OrderStatus[], nextStatus: OrderStatus, successMessage: string) {
@@ -85,7 +102,7 @@ export default function DeliveryPage() {
     const orderIdsInColumn = currentOrdersInColumn.map((o) => o.id);
 
     // Determine target items: chosen individuals, or fallback to moving everything in this column
-    const selectedInColumn = orderIdsInColumn.filter((id) => selectedOrderIds.includes(id));
+    const selectedInColumn = orderIdsInColumn.filter((id) => selectedIds.includes(id));
     // const idsToMove = selectedInColumn.length > 0 ? selectedInColumn : orderIdsInColumn;
     const idsToMove = selectedInColumn;
 
@@ -110,7 +127,8 @@ export default function DeliveryPage() {
     updateOrderStatus(idsToMove, nextStatus);
 
     // Clear moved selections from state array
-    setSelectedOrderIds((prev) => prev.filter((id) => !idsToMove.includes(id)));
+    // setSelectedOrderIds((prev) => prev.filter((id) => !idsToMove.includes(id)));
+    clearSelection(idsToMove);
     toast.success(`${successMessage} for ${idsToMove.length} order(s)`);
   }
 
@@ -135,12 +153,14 @@ export default function DeliveryPage() {
 
             // Calculate if the column's select-all box should look checked
             const columnOrderIds = ordersInColumn.map((o) => o.id);
-            const isSelectAllChecked =
-              columnOrderIds.length > 0 &&
-              columnOrderIds.every((id) => selectedOrderIds.includes(id));
+            // const isSelectAllChecked =
+            //   columnOrderIds.length > 0 &&
+            //   columnOrderIds.every((id) => selectedOrderIds.includes(id));
+            const isSelectAllChecked = isAllSelected(columnOrderIds);
 
             // Determine if individual selections exist to rename button content dynamically
-            const directSelectionsCount = columnOrderIds.filter((id) => selectedOrderIds.includes(id)).length;
+            // const directSelectionsCount = columnOrderIds.filter((id) => selectedOrderIds.includes(id)).length;
+            const directSelectionsCount = getSelectedCount(columnOrderIds);
 
             return (
               <section
@@ -160,7 +180,8 @@ export default function DeliveryPage() {
                       <Checkbox
                         id={`selectAll-${column.title}`}
                         checked={isSelectAllChecked}
-                        onCheckedChange={() => handleSelectAllToggle(column.statuses, ordersInColumn)}
+                        // onCheckedChange={() => handleSelectAllToggle(column.statuses, ordersInColumn)}
+                        onCheckedChange={() =>toggleSelectAll(columnOrderIds)}
                         className="border-gray-600"
                       />
                       <FieldLabel htmlFor={`selectAll-${column.title}`} className="cursor-pointer font-medium select-none">
@@ -176,8 +197,9 @@ export default function DeliveryPage() {
                     <OrderCard
                       key={order.id}
                       order={order}
-                      isSelected={selectedOrderIds.includes(order.id)}
-                      onSelectToggle={() => toggleOrderSelection(order.id)}
+                      showCheckbox={column.allowSelection}
+                      isSelected={isSelected(order.id)}
+                      onSelectToggle={() => toggleSelection(order.id)}
                     />
                   ))}
 
@@ -193,7 +215,14 @@ export default function DeliveryPage() {
                   <div className="mt-4 pt-3 border-t border-charcoal-100/50">
                     <Button
                       className="w-full shadow-sm font-bold"
-                      onClick={() => handleColumnMove(column.statuses, column.next!, column.actionLabel)}
+                      disabled={directSelectionsCount <= 0}
+                      onClick={() =>
+                        handleColumnMove(
+                          column.statuses,
+                          column.next!,
+                          column.actionLabel
+                        )
+                      }
                     >
                       {directSelectionsCount > 0
                         ? `${column.actionLabel} Selected (${directSelectionsCount})`

@@ -13,10 +13,17 @@ interface OrderCardProps {
   order: Order;
   editable?: boolean;
   isSelected: boolean;
+  showCheckbox?: boolean;
   onSelectToggle: () => void;
 }
 
-export function OrderCard({ order, editable = false, isSelected, onSelectToggle }: OrderCardProps) {
+export function OrderCard({
+  order,
+  editable = false,
+  isSelected,
+  showCheckbox = true,
+  onSelectToggle,
+}: OrderCardProps) {
   // Hook usage integration (SLA live timer setup for orders with 'Ready' status)
   const { isDelayed, formattedTime } = useOrderTimer({
     readyAt: (order as any).readyAt,
@@ -35,17 +42,19 @@ export function OrderCard({ order, editable = false, isSelected, onSelectToggle 
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <FieldGroup>
-          <Field orientation="horizontal" className="flex items-center">
-            <Checkbox
-              id={`checkbox-${order.id}`}
-              name={`checkbox-${order.id}`}
-              checked={isSelected}
-              onCheckedChange={onSelectToggle}
-              className="border-gray-600 data-[state=checked]:bg-primary"
-            />
-          </Field>
-        </FieldGroup>
+        {showCheckbox && (
+          <FieldGroup>
+            <Field orientation="horizontal" className="flex items-center">
+              <Checkbox
+                id={`checkbox-${order.id}`}
+                name={`checkbox-${order.id}`}
+                checked={isSelected}
+                onCheckedChange={onSelectToggle}
+                className="border-gray-600 data-[state=checked]:bg-primary"
+              />
+            </Field>
+          </FieldGroup>
+        )}
         
         {/* Live dynamic layout shifting badge depending on order timer SLA thresholds */}
         <div className="flex items-center gap-2">
